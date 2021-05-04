@@ -1,0 +1,33 @@
+{
+  "name": "@svelteuse/router",
+  "version": "0.1.0",
+  "description": "Useful svelte router helper",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "ts-standard",
+    "lint:fix": "ts-standard --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/svelteuse/router.git"
+  },
+  "keywords": [
+    "svelte",
+    "router",
+    "typescript",
+    "svelteuse"
+  ],
+  "author": "Alexander Niebuhr <45965090+alexanderniebuhr@users.noreply.github.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/svelteuse/router/issues"
+  },
+  "homepage": "https://github.com/svelteuse/router#readme",
+  "devDependencies": {
+    "@types/node": "15.0.1",
+    "rimraf": "3.0.2",
+    "ts-standard": "10.0.0",
+    "typescript": "4.2.4"
+  }
+}
