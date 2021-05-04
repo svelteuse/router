@@ -2,11 +2,20 @@
   "name": "@svelteuse/router",
   "version": "0.1.0",
   "description": "Useful svelte router helper",
-  "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    "require": "./dist/index.js",
+    "import": "./dist/index.mjs"
+  },
   "scripts": {
     "test": "c8 --reporter=lcov --reporter=text --all --include src uvu -r sucrase/register tests",
     "lint": "ts-standard",
-    "lint:fix": "ts-standard --fix"
+    "lint:fix": "ts-standard --fix",
+    "dev": "npm run build -- --watch",
+    "build": "tsup ./src/index.ts --dts --format cjs,esm --out-dir dist",
+    "build:clean": "rimraf dist && npm run build"
   },
   "repository": {
     "type": "git",
