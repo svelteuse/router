@@ -6,6 +6,9 @@
     "lib": [
       "ES2020.String"
     ],
+    "types": [
+      "svelte"
+    ],
     // "sourceMap": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
