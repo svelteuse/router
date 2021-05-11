@@ -4,10 +4,8 @@
     "target": "ES2017",
     "importsNotUsedAsValues": "error",
     "lib": [
-      "ES2020.String"
-    ],
-    "types": [
-      "svelte"
+      "ES2020.String",
+      "DOM"
     ],
     // "sourceMap": true,
     "esModuleInterop": true,
