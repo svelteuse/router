@@ -12,15 +12,15 @@ export function createRoutes (options: Options): PreprocessorGroup {
   return {
     script: ({ content }) => {
       const files = useFs.walkSync(resolve(join(rootDir, pageDir)))
-      console.log(files)
+      // console.log(files)
       let importScriptBlock = ''
       files.forEach(file => {
         const parsedPath = relative(resolve(rootDir), file)
-        console.log(parsedPath)
+        // console.log(parsedPath)
         const base = basename(file)
         const name = base.split('.')[0].replace('~', '')
         const path = `"./${parsedPath.replace(/\\/g, '/')}"`
-        console.log(path)
+        // console.log(path)
 
         importScriptBlock += `\nimport ${name} from ${path};`
       })
