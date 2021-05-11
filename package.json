@@ -3,18 +3,29 @@
   "version": "0.1.0",
   "description": "Useful svelte router helper",
   "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "exports": {
-    "require": "./dist/index.js",
-    "import": "./dist/index.mjs"
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./node": {
+      "require": "./dist/node/node.js",
+      "import": "./dist/node/node.mjs"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "node": [
+        "./dist/node.d.ts"
+      ]
+    }
   },
   "scripts": {
     "test": "c8 --reporter=lcov --reporter=text --all --include src uvu -r sucrase/register tests",
     "lint": "ts-standard",
     "lint:fix": "ts-standard --fix",
     "dev": "npm run build -- --watch",
-    "build": "tsup ./src/index.ts --dts --format cjs,esm --out-dir dist",
+    "build": "tsup src/index.ts src/node/node.ts --dts --format cjs,esm --out-dir dist",
     "build:clean": "rimraf dist && npm run build"
   },
   "repository": {
@@ -34,6 +45,7 @@
   },
   "homepage": "https://github.com/svelteuse/router#readme",
   "devDependencies": {
+    "@nbhr/utils": "0.0.24",
     "@types/node": "15.0.1",
     "c8": "7.7.2",
     "rimraf": "3.0.2",
