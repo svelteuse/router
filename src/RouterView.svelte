@@ -1,11 +1,25 @@
 <script>
-  let test = true;
+  import { onMount } from "svelte";
+  import { useRouter } from "./index";
+  export let page;
+  onMount(() => {
+    let currentPath = window.location.pathname;
+    console.log("@svelteuse/router:", currentPath);
+    $useRouter.currentPath = currentPath;
+  });
+
+  window.onpopstate = function (event) {
+    let currentPath = window.location.pathname;
+    console.log("@svelteuse/router:", currentPath);
+  };
 </script>
 
-<h1>test</h1>
+<!-- <svelte:window on:popstate={onPopstate} /> -->
+
+<svelte:component this={page} />
 
 <style>
-  .init {
-    background: gray;
+  :root {
+    --svelteuse: #ff3e00;
   }
 </style>
