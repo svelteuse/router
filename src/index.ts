@@ -1,3 +1,6 @@
+import { writable } from 'svelte/store'
+import type { Writable } from 'svelte/types/runtime/store'
+
 export { default as RouterView } from './RouterView.svelte'
 
 export function link (node: HTMLElement): {
@@ -19,3 +22,28 @@ export function link (node: HTMLElement): {
     }
   }
 }
+
+interface Router {
+  routes: Record<string, any>
+  navigate: () => void
+  currentPath: string
+  getComponent: any
+
+}
+const router: Router = {
+  routes: {
+    '/': {
+      path: '/',
+      component: null
+    }
+  },
+  navigate: () => {
+    console.log('navigate tests')
+  },
+  currentPath: '/',
+  get getComponent () {
+    return this.routes[this.currentPath].component
+  }
+}
+export const useRouter = writable(router)
+
