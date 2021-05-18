@@ -1,6 +1,6 @@
+import { walkSync } from '@nbhr/utils/fs'
 import { basename, join, relative, resolve } from 'path'
 import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
-import { useFs } from '@nbhr/utils'
 
 interface Options {
   rootDir: string
@@ -10,8 +10,8 @@ interface Options {
 export function createRoutes (options: Options): PreprocessorGroup {
   const { rootDir, pageDir } = options
   return {
-    script: ({ content }) => {
-      const files = useFs.walkSync(resolve(join(rootDir, pageDir)))
+    script: ({ content, attributes }) => {
+      const files = walkSync(resolve(join(rootDir, pageDir)))
       // console.log(files)
       let importScriptBlock = ''
       files.forEach(file => {
@@ -21,13 +21,11 @@ export function createRoutes (options: Options): PreprocessorGroup {
         const name = base.split('.')[0].replace('~', '')
         const path = `"./${parsedPath.replace(/\\/g, '/')}"`
         // console.log(path)
-
         importScriptBlock += `\nimport ${name} from ${path};`
       })
       let processedContent = content
-      if (content.includes('useRoutes')) {
+      if (attributes['svelteuse:imports'] === true) {
         processedContent = importScriptBlock + '\n\n' + content
-          .replace('useRoutes;', '{ a: Home }')
       }
       return {
         code: processedContent
