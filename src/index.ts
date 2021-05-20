@@ -1,7 +1,8 @@
 import { writable } from 'svelte/store'
+import type { SvelteComponent } from 'svelte/types/runtime'
 import type { Writable } from 'svelte/types/runtime/store'
 
-export { default as RouterView } from './RouterView.svelte'
+// export { default as RouterView } from './RouterView.svelte'
 
 export function link (node: HTMLElement): {
   update?: (parameters: any) => void
@@ -10,10 +11,9 @@ export function link (node: HTMLElement): {
   node.addEventListener('click', function (event) {
     event.preventDefault()
     const href = node.getAttribute('href')
-    window.history.pushState({}, '', href)
-    useRouter.update(data => {
-      data.currentPath = (href != null) ? href : '/'
-      return data
+    useRouter.update(storeData => {
+      storeData.navigate(href?.toString())
+      return storeData
     })
   })
   return {
@@ -23,27 +23,78 @@ export function link (node: HTMLElement): {
   }
 }
 
-interface Router {
-  routes: Record<string, any>
-  navigate: () => void
-  currentPath: string
-  getComponent: any
+class Router {
+  private _routes: Array<{
+    path: string
+    component: SvelteComponent | undefined
+  }> | undefined = undefined
 
-}
-const router: Router = {
-  routes: {
-    '/': {
-      path: '/',
-      component: null
+  mode = 'history'
+
+  root = '/'
+
+  public set routes (r: Array<{
+    path: string
+    component: SvelteComponent | undefined
+  }> | undefined) {
+    this._routes = r
+  }
+
+  public get routes (): Array<{
+    path: string
+    component: SvelteComponent | undefined
+  }> | undefined {
+    return this._routes
+  }
+
+  /**
+   * flush
+   */
+  public flush (): void {
+    this._routes = undefined
+  }
+
+  private clearSlashes (path: string): string {
+    return path.replace(/\/$/, '').replace(/^\//, '')
+    // return path
+  }
+
+  /**
+   * getFragment
+   */
+  public getFragment (): string {
+    let fragment = ''
+    if (this.mode === 'history') {
+      fragment = this.clearSlashes(decodeURI(window.location.pathname + window.location.search))
+      fragment = fragment.replace(/\?(.*)$/, '')
+      fragment = this.root !== '/' ? fragment.replace(this.root, '') : fragment
     }
-  },
-  navigate: () => {
-    console.log('navigate tests')
-  },
-  currentPath: '/',
-  get getComponent () {
-    return this.routes[this.currentPath].component
+    return this.clearSlashes(fragment)
+  }
+
+  /**
+   * navigate
+   */
+  public navigate (path: string = ''): void {
+    console.log('navigate to', path)
+    if (this.mode === 'history') {
+      window.history.pushState(null, '', this.root + this.clearSlashes(path))
+    }
+  }
+
+  public get component (): SvelteComponent | undefined {
+    if (this._routes != null) {
+      let c
+      if (this.getFragment() === '') {
+        c = this._routes.find(route => route.path === '/')?.component
+      } else {
+        const regex = new RegExp(`^/\\${this.getFragment()}$`, 'gm')
+        c = this._routes.find(route => route.path.match(regex))?.component
+      }
+      return c
+    }
+    return undefined
   }
 }
-export const useRouter = writable(router)
 
+export const useRouter: Writable<Router> = writable(new Router())
