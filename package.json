@@ -2,6 +2,9 @@
   "name": "@svelteuse/router",
   "version": "0.1.0",
   "description": "Useful svelte router helper",
+  "publishConfig": {
+    "access": "public"
+  },
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
