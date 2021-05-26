@@ -11,6 +11,7 @@ export function link (node: HTMLElement): {
   node.addEventListener('click', function (event) {
     event.preventDefault()
     const href = node.getAttribute('href')
+
     useRouter.update(storeData => {
       storeData.navigate(href?.toString())
       return storeData
@@ -23,27 +24,22 @@ export function link (node: HTMLElement): {
   }
 }
 
+interface Route {
+  path: string
+  component: SvelteComponent | undefined
+}
 class Router {
-  private _routes: Array<{
-    path: string
-    component: SvelteComponent | undefined
-  }> | undefined = undefined
+  private _routes: Route[] | undefined = undefined
 
   mode = 'history'
 
   root = '/'
 
-  public set routes (r: Array<{
-    path: string
-    component: SvelteComponent | undefined
-  }> | undefined) {
+  public set routes (r: Route[] | undefined) {
     this._routes = r
   }
 
-  public get routes (): Array<{
-    path: string
-    component: SvelteComponent | undefined
-  }> | undefined {
+  public get routes (): Route[] | undefined {
     return this._routes
   }
 
@@ -88,7 +84,7 @@ class Router {
       if (this.getFragment() === '') {
         c = this._routes.find(route => route.path === '/')?.component
       } else {
-        const regex = new RegExp(`^/\\${this.getFragment()}$`, 'gm')
+        const regex = new RegExp('^/' + this.getFragment() + '$', 'gm')
         c = this._routes.find(route => route.path.match(regex))?.component
       }
       return c
