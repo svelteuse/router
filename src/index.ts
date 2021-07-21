@@ -4,6 +4,24 @@ import type { Writable } from 'svelte/types/runtime/store'
 
 // export { default as RouterView } from './RouterView.svelte'
 
+export function exists(x: any) {
+  console.log(x)
+  if (x === undefined || x === null) {
+    return false
+  } else {
+    return true
+  }
+}
+
+export function useGuard(options: Record<any, any>,...args: any[]) {
+  // FIXME:  navigate on Guard here, instead of Application
+  console.log("args", args);
+  if (options.link === "or") {
+    return args.some(e => e === true)
+  }
+  return args.every(e => e === true)
+}
+
 export function link (node: HTMLElement): {
   update?: (parameters: any) => void
   destroy?: () => void
