@@ -27,6 +27,7 @@ export function link (node: HTMLElement): {
 interface Route {
   path: string
   component: SvelteComponent | undefined
+  layout: SvelteComponent | undefined
 }
 class Router {
   private _routes: Route[] | undefined = undefined
@@ -86,6 +87,20 @@ class Router {
       } else {
         const regex = new RegExp('^/' + this.getFragment() + '$', 'gm')
         c = this._routes.find(route => route.path.match(regex))?.component
+      }
+      return c
+    }
+    return undefined
+  }
+
+  public get layout (): SvelteComponent | undefined {
+    if (this._routes != null) {
+      let c
+      if (this.getFragment() === '') {
+        c = this._routes.find(route => route.path === '/')?.layout
+      } else {
+        const regex = new RegExp('^/' + this.getFragment() + '$', 'gm')
+        c = this._routes.find(route => route.path.match(regex))?.layout
       }
       return c
     }
