@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
+    "target": "ES2020",
     "moduleResolution": "node",
-    "target": "ES2017",
-    "importsNotUsedAsValues": "error",
     "lib": [
-      "ES2020.String",
+      "ES2020",
       "DOM"
     ],
-    // "sourceMap": true,
+    "importsNotUsedAsValues": "error",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "strictNullChecks": true,
+    "isolatedModules": true,
+    // strict settings
     "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true
+    "noImplicitReturns": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
   }
 }
