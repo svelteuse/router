@@ -1,5 +1,5 @@
 import { walkSync } from '@nbhr/utils/fs'
-import { basename, join, relative, resolve } from 'path'
+import { basename, join, relative, resolve } from 'node:path'
 import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 
 interface Options {
@@ -14,7 +14,7 @@ export function createRoutes (options: Options): PreprocessorGroup {
       const files = walkSync(resolve(join(rootDir, pageDir)))
       // console.log(files)
       let importScriptBlock = ''
-      files.forEach(file => {
+      for (const file of files) {
         const parsedPath = relative(resolve(rootDir), file)
         // console.log(parsedPath)
         const base = basename(file)
@@ -22,7 +22,7 @@ export function createRoutes (options: Options): PreprocessorGroup {
         const path = `"./${parsedPath.replace(/\\/g, '/')}"`
         // console.log(path)
         importScriptBlock += `\nimport ${name} from ${path};`
-      })
+      }
       let processedContent = content
       if (attributes['svelteuse:imports'] === true) {
         processedContent = importScriptBlock + '\n\n' + content

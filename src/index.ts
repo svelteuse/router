@@ -4,26 +4,20 @@ import type { Writable } from 'svelte/types/runtime/store'
 
 // export { default as RouterView } from './RouterView.svelte'
 
-export function exists(x: any) {
-  console.log(x)
-  if (x === undefined || x === null) {
-    return false
-  } else {
-    return true
-  }
+export function exists<T>(x: T): boolean {
+  return x === undefined || x === null ? false : true
 }
 
-export function useGuard(options: Record<any, any>,...args: any[]) {
+export function useGuard(options: Record<any, any>,...args: any[]): boolean {
   // FIXME:  navigate on Guard here, instead of Application
-  console.log("args", args);
-  if (options.link === "or") {
-    return args.some(e => e === true)
+  console.log('args', args)
+  if (options.link === 'or') {
+    return args.includes(true)
   }
   return args.every(e => e === true)
 }
 
 export function link (node: HTMLElement): {
-  update?: (parameters: any) => void
   destroy?: () => void
 } {
   node.addEventListener('click', function (event) {
@@ -31,7 +25,7 @@ export function link (node: HTMLElement): {
     const href = node.getAttribute('href')
 
     useRouter.update(storeData => {
-      storeData.navigate(href?.toString())
+      storeData.navigate(href?.toString() || '')
       return storeData
     })
   })
@@ -47,83 +41,67 @@ interface Route {
   component: SvelteComponent | undefined
   layout: SvelteComponent | undefined
 }
-class Router {
-  private _routes: Route[] | undefined = undefined
 
-  mode = 'history'
-
-  root = '/'
-
-  public set routes (r: Route[] | undefined) {
-    this._routes = r
-  }
-
-  public get routes (): Route[] | undefined {
-    return this._routes
-  }
-
-  /**
-   * flush
-   */
-  public flush (): void {
-    this._routes = undefined
-  }
-
-  private clearSlashes (path: string): string {
-    return path.replace(/\/$/, '').replace(/^\//, '')
-    // return path
-  }
-
-  /**
-   * getFragment
-   */
-  public getFragment (): string {
-    let fragment = ''
-    if (this.mode === 'history') {
-      fragment = this.clearSlashes(decodeURI(window.location.pathname + window.location.search))
-      fragment = fragment.replace(/\?(.*)$/, '')
-      fragment = this.root !== '/' ? fragment.replace(this.root, '') : fragment
-    }
-    return this.clearSlashes(fragment)
-  }
-
-  /**
-   * navigate
-   */
-  public navigate (path: string = ''): void {
-    console.log('navigate to', path)
-    if (this.mode === 'history') {
-      window.history.pushState(null, '', this.root + this.clearSlashes(path))
-    }
-  }
-
-  public get component (): SvelteComponent | undefined {
-    if (this._routes != null) {
-      let c
-      if (this.getFragment() === '') {
-        c = this._routes.find(route => route.path === '/')?.component
-      } else {
-        const regex = new RegExp('^/' + this.getFragment() + '$', 'gm')
-        c = this._routes.find(route => route.path.match(regex))?.component
-      }
-      return c
-    }
-    return undefined
-  }
-
-  public get layout (): SvelteComponent | undefined {
-    if (this._routes != null) {
-      let c
-      if (this.getFragment() === '') {
-        c = this._routes.find(route => route.path === '/')?.layout
-      } else {
-        const regex = new RegExp('^/' + this.getFragment() + '$', 'gm')
-        c = this._routes.find(route => route.path.match(regex))?.layout
-      }
-      return c
-    }
-    return undefined
-  }
+interface Router {
+  routes: Route[] | undefined
+  mode:string
+  root: string
+  getFragment: () => string
+  getComponent: () => SvelteComponent | undefined
+  getComponentLayout: () => SvelteComponent | undefined
+  navigate: (path: string) => void
 }
 
-export const useRouter: Writable<Router> = writable(new Router())
+export const useRouter: Writable<Router> = writable({
+  routes: undefined,
+  mode: 'history',
+  root: '/',
+  getFragment: () => {
+    return decodeURI(window.location.pathname + window.location.search)
+  },
+  getComponent: function () {
+    console.log(this.getFragment())
+    
+    if (this.routes != undefined) {
+      console.log('try to find above route')
+      
+      let c
+      const regex = new RegExp('^' + this.getFragment() + '$', 'gm')
+      console.log('using regex: ' + regex)
+      
+      c = this.routes.find(route => {
+        console.log('route: ' + route.path)
+        
+        return route.path.match(regex)
+      })?.component
+      return c
+    }
+  },
+  getComponentLayout: function() {
+    console.log(this.getFragment())
+    
+    if (this.routes != undefined) {
+      console.log('try to find above route')
+      
+      let c
+      const regex = new RegExp('^' + this.getFragment() + '$', 'gm')
+      console.log('using regex: ' + regex)
+      
+      c = this.routes.find(route => {
+        console.log('route: ' + route.path)
+        
+        return route.path.match(regex)
+      })?.layout
+      return c
+    }
+  },
+  navigate: function (path: string)  {
+    useRouter.update(storeData => {
+      console.log('navigate to: ' + path)
+      if (storeData.mode === 'history') {
+        window.history.pushState(undefined, '', this.root + path.replace(/\/$/, '').replace(/^\//, ''))
+      }
+      return storeData
+    })
+  }
+})
