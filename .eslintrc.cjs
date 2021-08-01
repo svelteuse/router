@@ -1,34 +1,21 @@
 module.exports = {
-  'env': {
+  env: {
     node: true,
     es2020: true,
   },
-  'extends': [
+  extends: [
     'eslint:recommended',
     'plugin:import/recommended',
     'plugin:unicorn/recommended',
     'plugin:sonarjs/recommended',
     'plugin:regexp/recommended',
-    'plugin:optimize-regex/recommended',
     'plugin:import/typescript',
-    'plugin:@typescript-eslint/recommended'
+    'plugin:@typescript-eslint/recommended',
+    'prettier',
   ],
-  'plugins': [
-    'import',
-    'unicorn',
-    'sonarjs',
-    'regexp',
-    'optimize-regex',
-    '@typescript-eslint'
-  ],
-  'parser': '@typescript-eslint/parser',
-  'rules': {
-
-    // Common
-    'semi': ['error', 'never'],
-    'quotes': ['error', 'single'],
-    'indent': ['error', 2, { SwitchCase: 1, VariableDeclarator: 1, outerIIFEBody: 1 }],
-
+  plugins: ['import', 'unicorn', 'sonarjs', 'regexp', '@typescript-eslint'],
+  parser: '@typescript-eslint/parser',
+  rules: {
     // import
     'import/no-unresolved': 'off',
 
@@ -44,5 +31,5 @@ module.exports = {
 
     // TS
     '@typescript-eslint/semi': ['error', 'never'],
-  }
+  },
 }

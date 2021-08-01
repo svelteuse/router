@@ -7,7 +7,7 @@ interface Options {
   pageDir: string
 }
 
-export function createRoutes (options: Options): PreprocessorGroup {
+export function createRoutes(options: Options): PreprocessorGroup {
   const { rootDir, pageDir } = options
   return {
     script: ({ content, attributes }) => {
@@ -28,8 +28,8 @@ export function createRoutes (options: Options): PreprocessorGroup {
         processedContent = importScriptBlock + '\n\n' + content
       }
       return {
-        code: processedContent
+        code: processedContent,
       }
-    }
+    },
   }
 }

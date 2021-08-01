@@ -2,10 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "moduleResolution": "node",
-    "lib": [
-      "ES2020",
-      "DOM"
-    ],
+    "lib": ["ES2020", "DOM"],
     "importsNotUsedAsValues": "error",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -15,6 +12,6 @@
     "noImplicitReturns": true,
     "strict": true,
     "noUnusedLocals": true,
-    "strictNullChecks": true,
+    "strictNullChecks": true
   }
 }
