@@ -1,5 +1,5 @@
 import { walkSync } from '@nbhr/utils/fs'
-import { basename, join, relative, resolve } from 'node:path'
+import { basename, dirname, join, relative, resolve } from 'node:path'
 import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 
 interface Options {
@@ -11,21 +11,42 @@ export function createRoutes(options: Options): PreprocessorGroup {
   const { rootDir, pageDir } = options
   return {
     script: ({ content, attributes }) => {
+      const routes: Map<string, unknown> = new Map()
       const files = walkSync(resolve(join(rootDir, pageDir)))
-      // console.log(files)
       let importScriptBlock = ''
       for (const file of files) {
         const parsedPath = relative(resolve(rootDir), file)
-        // console.log(parsedPath)
+        const directory = basename(dirname(parsedPath))
         const base = basename(file)
-        const name = base.split('.')[0].replace('~', '')
-        const path = `"./${parsedPath.replace(/\\/g, '/')}"`
-        // console.log(path)
-        importScriptBlock += `\nimport ${name} from ${path};`
+        let name = base.split('.')[0]
+        const isDynamic = name.includes('[')
+        name = name.replace('[', '').replace(']', '')
+        const componentName = isDynamic ? directory.toUpperCase() : name
+        const path = `"./${parsedPath.replaceAll('\\', '/')}"`
+        importScriptBlock += `\nimport ${componentName} from ${path};`
+
+        const routePath = `/${componentName.toLowerCase()}${
+          isDynamic ? '/:' + name : ''
+        }`
+
+        routes.set(componentName, {
+          path: routePath,
+          // pattern: new RegExp(pattern).toString(),
+          component: componentName,
+        })
       }
+
+      const routesDefinition = `
+      $useRouter.routes = ${JSON.stringify([...routes.values()]).replace(
+        /(?<=component":)"(\w+)"/g,
+        '$1'
+      )};
+      `
+
       let processedContent = content
       if (attributes['svelteuse:imports'] === true) {
-        processedContent = importScriptBlock + '\n\n' + content
+        processedContent =
+          importScriptBlock + '\n' + routesDefinition + '\n\n' + content
       }
       return {
         code: processedContent,
