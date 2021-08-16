@@ -5,10 +5,11 @@ import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 interface Options {
   rootDir: string
   pageDir: string
+  mainComponent: string
 }
 
 export function createRoutes(options: Options): PreprocessorGroup {
-  const { rootDir, pageDir } = options
+  const { rootDir, pageDir, mainComponent } = options
   return {
     script: ({ content, attributes }) => {
       const routes: Map<string, unknown> = new Map()
@@ -30,7 +31,10 @@ export function createRoutes(options: Options): PreprocessorGroup {
         }`
 
         routes.set(componentName, {
-          path: routePath,
+          path:
+            routePath == `/${mainComponent.split('.')[0].toLowerCase()}`
+              ? '/'
+              : routePath,
           // pattern: new RegExp(pattern).toString(),
           component: componentName,
         })
