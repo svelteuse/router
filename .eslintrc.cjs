@@ -1,4 +1,6 @@
 module.exports = {
+  plugins: ['import', 'unicorn', 'regexp', '@typescript-eslint'],
+  parser: '@typescript-eslint/parser',
   env: {
     node: true,
     es2020: true,
@@ -7,29 +9,27 @@ module.exports = {
     'eslint:recommended',
     'plugin:import/recommended',
     'plugin:unicorn/recommended',
-    'plugin:sonarjs/recommended',
     'plugin:regexp/recommended',
     'plugin:import/typescript',
     'plugin:@typescript-eslint/recommended',
     'prettier',
   ],
-  plugins: ['import', 'unicorn', 'sonarjs', 'regexp', '@typescript-eslint'],
-  parser: '@typescript-eslint/parser',
   rules: {
     // import
     'import/no-unresolved': 'off',
 
     // unicorns
-    // keep regex literals safe
-    'unicorn/no-unsafe-regex': 'off',
-    // allow abbreviations
+    // addtional
+    'unicorn/custom-error-definition': 'off',
+    'unicorn/import-index': 'off',
+    'unicorn/no-keyword-prefix': 'off',
+    'unicorn/no-unsafe-regex': 'warn',
+    'unicorn/no-unused-properties': 'off',
+    'unicorn/prefer-at': ['off', { checkAllIndexAccess: true }],
+    'unicorn/prefer-object-has-own': 'warn',
+    'unicorn/prefer-string-replace-all': 'warn',
+    'unicorn/prefer-top-level-await': 'off',
+    // overrides
     'unicorn/prevent-abbreviations': 'off',
-    // lowercase number formatting for octal, hex, binary (0x1'error' instead of 0X1'error')
-    'unicorn/number-literal-case': 'error',
-    // String methods startsWith/endsWith instead of more complicated stuff
-    'unicorn/prefer-starts-ends-with': 'error',
-
-    // TS
-    '@typescript-eslint/semi': ['error', 'never'],
   },
 }
