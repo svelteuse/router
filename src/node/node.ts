@@ -26,10 +26,11 @@ export function createRoutes(options: Options): PreprocessorGroup {
         const path = `"./${parsedPath.replaceAll('\\', '/')}"`
         importScriptBlock += `\nimport ${componentName} from ${path};`
 
-        const routePath = `/${componentName.toLowerCase()}${
-          isDynamic ? '/:' + name : ''
-        }`
-
+        const routePath = `${
+          directory == pageDir ? '' : '/' + directory.toLowerCase()
+        }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
+        console.log(routePath)
+        
         routes.set(componentName, {
           path:
             routePath == `/${mainComponent.split('.')[0].toLowerCase()}`
