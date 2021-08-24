@@ -37,7 +37,6 @@ export function createRoutes(options: Options): PreprocessorGroup {
           const layoutName = attributes['router-layout-empty']
             ? 'Empty'
             : 'Default'
-        console.log(routePath)
         
           routes.set(componentName, {
             path: routePath,
