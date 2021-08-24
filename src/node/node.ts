@@ -28,7 +28,9 @@ export function createRoutes(options: Options): PreprocessorGroup {
           const path = `"./${parsedPath.replaceAll('\\', '/')}"`
           importScriptBlock += `\nimport ${componentName} from ${path};`
 
-        const routePath = `${
+          if (name.toLowerCase() == 'index') {
+            name = ''
+          }
           const routePath = `${rootPath ? rootPath : ''}${
             directory == pageDir ? '' : '/' + directory.toLowerCase()
           }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
