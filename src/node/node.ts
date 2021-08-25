@@ -1,6 +1,7 @@
 import { walkSync } from '@nbhr/utils/fs'
 import { basename, dirname, join, relative, resolve } from 'node:path'
 import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
+import { readFileSync } from 'node:fs'
 
 interface Options {
   rootDir: string
@@ -34,10 +35,13 @@ export function createRoutes(options: Options): PreprocessorGroup {
           const routePath = `${rootPath ? rootPath : ''}${
             directory == pageDir ? '' : '/' + directory.toLowerCase()
           }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
-          const layoutName = attributes['router-layout-empty']
-            ? 'Empty'
-            : 'Default'
-        
+
+          const layoutConfig =
+            readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] ||
+            'default'
+          const layoutName =
+            layoutConfig?.charAt(0).toUpperCase() + layoutConfig?.slice(1)
+
           routes.set(componentName, {
             path: routePath,
             // pattern: new RegExp(pattern).toString(),
