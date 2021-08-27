@@ -63,7 +63,7 @@ export const useRouter: Writable<Router> = writable({
     const routes = this.routes
     let match
     for (const route of routes) {
-      const router = parse(route.path)
+      const router = parse(route.path, true)
       const isRoute = router.pattern.test(path)
 
       if (isRoute) match = route
