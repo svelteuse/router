@@ -1,7 +1,7 @@
 import { walkSync } from '@nbhr/utils/fs'
-import { basename, dirname, join, relative, resolve } from 'node:path'
-import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 import { readFileSync } from 'node:fs'
+import { basename, join, relative, resolve, sep } from 'node:path'
+import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 
 interface Options {
   rootDir: string
@@ -19,32 +19,18 @@ export function createRoutes(options: Options): PreprocessorGroup {
         let importScriptBlock = ''
         for (const file of files) {
           const parsedPath = relative(resolve(rootDir), file)
-          const directory = basename(dirname(parsedPath))
-          const base = basename(file)
-          let name = base.split('.')[0]
-          const isDynamic = name.includes('[')
-          name = name.replace('[', '').replace(']', '')
-          // TODO: use better Import, to allow multiple import of same name
-          const componentName = isDynamic ? directory.toUpperCase() : name
-          const path = `"./${parsedPath.replaceAll('\\', '/')}"`
+          const componentName = generateImportIdentifier(parsedPath, pageDir)
+          const path = generateImportPath(parsedPath)
           importScriptBlock += `\nimport ${componentName} from ${path};`
 
-          if (name.toLowerCase() == 'index') {
-            name = ''
-          }
-          const routePath = `${rootPath ? rootPath : ''}${
-            directory == pageDir ? '' : '/' + directory.toLowerCase()
-          }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
+          const routePath = generateRoutePath(componentName, rootPath)
 
           const layoutConfig =
-            readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] ||
-            'default'
-          const layoutName =
-            layoutConfig?.charAt(0).toUpperCase() + layoutConfig?.slice(1)
+            readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] || 'default'
+          const layoutName = layoutConfig?.charAt(0).toUpperCase() + layoutConfig?.slice(1)
 
           routes.set(componentName, {
             path: routePath,
-            // pattern: new RegExp(pattern).toString(),
             component: componentName,
             layout: layoutName,
           })
@@ -58,8 +44,7 @@ export function createRoutes(options: Options): PreprocessorGroup {
 
         let processedContent = content
         if (attributes['svelteuse:imports'] === true) {
-          processedContent =
-            importScriptBlock + '\n' + routesDefinition + '\n\n' + content
+          processedContent = importScriptBlock + '\n' + routesDefinition + '\n\n' + content
         }
         return {
           code: processedContent,
@@ -71,4 +56,55 @@ export function createRoutes(options: Options): PreprocessorGroup {
       }
     },
   }
+}
+
+export function generateImportIdentifier(path: string, pageDir: string): string {
+  let value = ''
+  const segments = path.split(sep)
+  const file = basename(segments.pop() || '', '.svelte')
+  for (const dir of segments) {
+    if (dir != pageDir) {
+      isDynamic(dir)
+        ? (value += dir.slice(1, -1).toUpperCase() + '_')
+        : (value += dir.charAt(0).toUpperCase() + dir.slice(1) + '_')
+    }
+  }
+  value += isDynamic(file)
+    ? file.slice(1, -1).toUpperCase()
+    : file.charAt(0).toUpperCase() + file.slice(1)
+  return value
+  // return isDynamic ? directory.toUpperCase() : name
+}
+
+export function generateImportPath(path: string): string {
+  return `"./${path.replaceAll(sep, '/')}"`
+}
+
+export function generateRoutePath(componentName: string, rootPath?: string): string {
+  // const routePath = `${rootPath ? rootPath : ''}${
+  //   directory == pageDir ? '' : '/' + directory.toLowerCase()
+  // }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
+  let value = ''
+  if (rootPath) {
+    value += rootPath
+  }
+  const segments = componentName.split('_')
+  for (const segment of segments) {
+    if (segment.toLowerCase() == 'index') {
+      break
+    }
+    value += isUpperCase(segment) ? '/:' + segment.toLowerCase() : '/' + segment.toLowerCase()
+  }
+
+  return value
+}
+
+// function which checks if string is upper case
+function isUpperCase(str: string): boolean {
+  return str === str.toUpperCase()
+}
+
+// function which checks if string starts with '[' and ends with ']'
+function isDynamic(str: string): boolean {
+  return str.startsWith('[') && str.endsWith(']')
 }
