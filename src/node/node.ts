@@ -56,6 +56,7 @@ export function createRoutes(options: Options): PreprocessorGroup {
   }
 }
 
+/** @internal */
 export function parseFile(
   path: string,
   pageDir = 'pages',
@@ -91,11 +92,12 @@ export function parseFile(
   }
 }
 
+/** @internal */
 export function generateImportPath(path: string): string {
   return `"./${path.replaceAll(sep, '/')}"`
 }
 
-// function which checks if string starts with '[' and ends with ']'
+/** @internal */
 function isDynamic(str: string): boolean {
   return str.startsWith('[') && str.endsWith(']')
 }
