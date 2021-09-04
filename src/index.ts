@@ -7,13 +7,62 @@ export function exists<T>(x: T): boolean {
   return x === undefined || x === null ? false : true
 }
 
-export function useGuard(options: Record<any, any>, ...args: any[]): boolean {
-  // FIXME:  navigate on Guard here, instead of Application
-  console.log('args', args)
-  if (options.link === 'or') {
-    return args.includes(true)
+// const guardCheck = useGuard({ link: 'or', redirect: '/login' }, exists(ACCOUNTS[0]))
+// if (!guardCheck) {
+//   $useRouter.navigate('/login')
+//   console.log($useRouter.getFragment())
+//   console.log($useRouter.getComponent())
+// }
+
+// options: GuardOptions, ...args: any[]
+// interface GuardOptions {}
+
+class Guard {
+  _destination = '/'
+  _logic: 'and' | 'or' = 'and'
+
+  constructor(logic?: 'and' | 'or') {
+    console.log('GUARD CLASS')
+    if (logic) this._logic = logic
   }
-  return args.every((e) => e === true)
+
+  /**
+   * goTo
+   */
+  public goTo(href: string): this {
+    this._destination = href
+    console.log('guard would send me to', href)
+    return this
+  }
+
+  private _navigate() {
+    useRouter.update((storeData) => {
+      storeData.navigate(this._destination)
+      return storeData
+    })
+  }
+
+  /**
+   * check
+   */
+  public check(...args: boolean[]): this {
+    console.log('argsArray', args)
+    if (this._logic === 'and' && args.some((check) => check == false)) {
+      this._navigate()
+    }
+    return this
+  }
+
+  // // FIXME:  navigate on Guard here, instead of Application
+  // console.log('args', args)
+  // if (options.link === 'or') {
+  //   return args.includes(true)
+  // }
+  // return args.every((e) => e === true)
+}
+
+export function useGuard(): Guard {
+  return new Guard()
 }
 
 export function link(node: HTMLElement): {
