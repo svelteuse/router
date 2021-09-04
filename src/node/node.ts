@@ -19,19 +19,17 @@ export function createRoutes(options: Options): PreprocessorGroup {
         let importScriptBlock = ''
         for (const file of files) {
           const parsedPath = relative(resolve(rootDir), file)
-          const componentName = generateImportIdentifier(parsedPath, pageDir)
-          const path = generateImportPath(parsedPath)
-          importScriptBlock += `\nimport ${componentName} from ${path};`
-
-          const routePath = generateRoutePath(componentName, rootPath)
+          const { identifier, path } = parseFile(parsedPath, pageDir, rootPath)
+          const importPath = generateImportPath(parsedPath)
+          importScriptBlock += `\nimport ${identifier} from ${importPath};`
 
           const layoutConfig =
             readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] || 'default'
           const layoutName = layoutConfig?.charAt(0).toUpperCase() + layoutConfig?.slice(1)
 
-          routes.set(componentName, {
-            path: routePath,
-            component: componentName,
+          routes.set(identifier, {
+            path: path,
+            component: identifier,
             layout: layoutName,
           })
         }
@@ -58,50 +56,43 @@ export function createRoutes(options: Options): PreprocessorGroup {
   }
 }
 
-export function generateImportIdentifier(path: string, pageDir: string): string {
-  let value = ''
+export function parseFile(
+  path: string,
+  pageDir = 'pages',
+  rootPath = '/'
+): { identifier: string; path: string } {
+  let ivalue = ''
+  let pvalue = ''
+
+  if (rootPath && rootPath !== '/') {
+    pvalue += rootPath
+  }
+
   const segments = path.split(sep)
   const file = basename(segments.pop() || '', '.svelte')
   for (const dir of segments) {
     if (dir != pageDir) {
       isDynamic(dir)
-        ? (value += dir.slice(1, -1).toUpperCase() + '_')
-        : (value += dir.charAt(0).toUpperCase() + dir.slice(1) + '_')
+        ? (ivalue += dir.slice(1, -1).toUpperCase() + '_')
+        : (ivalue += dir.charAt(0).toUpperCase() + dir.slice(1) + '_')
+      pvalue += isDynamic(dir) ? '/:' + dir.slice(1, -1).toLowerCase() : '/' + dir.toLowerCase()
     }
   }
-  value += isDynamic(file)
+  ivalue += isDynamic(file)
     ? file.slice(1, -1).toUpperCase()
     : file.charAt(0).toUpperCase() + file.slice(1)
-  return value
-  // return isDynamic ? directory.toUpperCase() : name
+
+  if (file.toLowerCase() !== 'index') {
+    pvalue += isDynamic(file) ? '/:' + file.slice(1, -1).toLowerCase() : '/' + file.toLowerCase()
+  }
+  return {
+    identifier: ivalue,
+    path: pvalue,
+  }
 }
 
 export function generateImportPath(path: string): string {
   return `"./${path.replaceAll(sep, '/')}"`
-}
-
-export function generateRoutePath(componentName: string, rootPath?: string): string {
-  // const routePath = `${rootPath ? rootPath : ''}${
-  //   directory == pageDir ? '' : '/' + directory.toLowerCase()
-  // }${isDynamic ? '/:' + name : '/' + name.toLowerCase()}`
-  let value = ''
-  if (rootPath) {
-    value += rootPath
-  }
-  const segments = componentName.split('_')
-  for (const segment of segments) {
-    if (segment.toLowerCase() == 'index') {
-      break
-    }
-    value += isUpperCase(segment) ? '/:' + segment.toLowerCase() : '/' + segment.toLowerCase()
-  }
-
-  return value
-}
-
-// function which checks if string is upper case
-function isUpperCase(str: string): boolean {
-  return str === str.toUpperCase()
 }
 
 // function which checks if string starts with '[' and ends with ']'
