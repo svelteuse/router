@@ -1,6 +1,6 @@
 {
   "name": "@svelteuse/router",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Useful svelte router helper",
   "keywords": [
     "svelte",
