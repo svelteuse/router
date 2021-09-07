@@ -46,7 +46,7 @@
     "build:clean": "rimraf dist && npm run build",
     "check": "npx taze@latest major",
     "sort": "npx sort-package-json@latest",
-    "prepublishOnly": "npm version patch && npm run build:clean"
+    "prepublishOnly": "npm run build:clean"
   },
   "devDependencies": {
     "@alexanderniebuhr/style": "1.0.13",
