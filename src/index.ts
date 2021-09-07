@@ -53,7 +53,6 @@ class Guard {
     return this
   }
 
-  // // FIXME:  navigate on Guard here, instead of Application
   // console.log('args', args)
   // if (options.link === 'or') {
   //   return args.includes(true)
@@ -103,11 +102,23 @@ interface Router {
   navigate: (path: string) => void
 }
 
+type Evergreen =
+  | string
+  | number
+  | boolean
+  | bigint
+  | Record<string, unknown>
+  | Array<unknown>
+  | null
+  | undefined
+
+type ComponentProps = Record<string, Evergreen>
+
 export const useRouter: Writable<Router> = writable({
   routes: [],
   mode: 'history',
   root: '/',
-  props: {},
+  props: <ComponentProps>{},
   matchRoute: function (path: string) {
     const routes = this.routes
     let match
@@ -127,10 +138,14 @@ export const useRouter: Writable<Router> = writable({
           while (i < router.keys.length) {
             const key = router.keys[i].toString()
             const value = matches[++i]
-            // @ts-expect-error No index signature with a parameter of type 'string' was found on type '{}'
             this.props[key] = value
           }
         }
+      }
+      if (search.length > 0) {
+        this.props['queryparams'] = Object.fromEntries(
+          new URLSearchParams(search) as unknown as Map<string, string>
+        )
       }
       if (isRoute) break
     }

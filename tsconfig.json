@@ -9,10 +9,11 @@
     "isolatedModules": true,
     // strict settings
     "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "strict": true,
-    "noUnusedLocals": true,
     "strictNullChecks": true,
+    "noUnusedLocals": true,
     "stripInternal": true
   }
 }

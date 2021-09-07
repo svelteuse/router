@@ -42,7 +42,8 @@
   "scripts": {
     "test": "c8 --reporter=lcov --reporter=text --all --include src uvu -r sucrase/register tests",
     "dev": "npm run build -- --watch --sourcemap",
-    "build": "tsup src/index.ts src/node/node.ts --dts --format cjs,esm --out-dir dist",
+    "build:try": "tsup src/index.ts src/node/node.ts --dts --format cjs,esm --target chrome89 --target edge89 --target firefox87 --target safari13 && tsup src/placeholder.ts src/node/node.ts --dts --format cjs,esm --target es2020 && npx rimraf  dist/placeholder.js dist/placeholder.mjs dist/placeholder.d.ts",
+    "build": "tsup src/index.ts src/node/node.ts --dts --format cjs,esm --target es2020",
     "build:clean": "rimraf dist && npm run build",
     "check": "npx taze@latest major",
     "sort": "npx sort-package-json@latest",
