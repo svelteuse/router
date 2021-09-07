@@ -121,7 +121,7 @@ export const useRouter: Writable<Router> = writable({
 
       if (isRoute) match = route
       if (router.keys.length > 0) {
-        const matches = router.pattern.exec(path)
+        const matches = router.pattern.exec(pathname)
         if (matches) {
           let i = 0
           while (i < router.keys.length) {
