@@ -38,6 +38,7 @@ class Guard {
   private _navigate() {
     useRouter.update((storeData) => {
       storeData.navigate(this._destination)
+      window.location.reload()
       return storeData
     })
   }
