@@ -160,8 +160,13 @@ export const useRouter: Writable<Router> = writable({
       console.log('trying to match:', this.getFragment())
       const svelteComponent = this.matchRoute(this.getFragment())
 
-      if (!svelteComponent) throw new Error('404')
-      return svelteComponent.layout
+      if (!svelteComponent) {
+        console.log("page not found")
+        this.navigate('/notfound')
+        return
+      }  else {
+        return svelteComponent.layout
+      }
     } else {
       throw new Error('routes are not registered correctly')
     }
@@ -171,8 +176,13 @@ export const useRouter: Writable<Router> = writable({
       console.log('try to find above route')
       const svelteComponent = this.matchRoute(this.getFragment())
 
-      if (!svelteComponent) throw new Error('404')
-      return svelteComponent.component
+      if (!svelteComponent) {
+        console.log("page not found")
+        this.navigate('/notfound')
+        return
+      }  else {
+        return svelteComponent.component
+      }
     } else {
       throw new Error('routes are not registered correctly')
     }
