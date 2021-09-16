@@ -162,7 +162,7 @@ export const useRouter: Writable<Router> = writable({
 
       if (!svelteComponent) {
         console.log("page not found")
-        this.navigate('/notfound')
+        this.navigate(`${this.getFragment().split("/")[1]}/notfound`)
         return
       }  else {
         return svelteComponent.layout
@@ -178,7 +178,7 @@ export const useRouter: Writable<Router> = writable({
 
       if (!svelteComponent) {
         console.log("page not found")
-        this.navigate('/notfound')
+        this.navigate(`${this.getFragment().split("/")[1]}/notfound`)
         return
       }  else {
         return svelteComponent.component
