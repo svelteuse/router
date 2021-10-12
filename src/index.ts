@@ -38,7 +38,6 @@ class Guard {
   private _navigate() {
     useRouter.update((storeData) => {
       storeData.navigate(this._destination)
-      window.location.reload()
       return storeData
     })
   }
@@ -53,12 +52,6 @@ class Guard {
     }
     return this
   }
-
-  // console.log('args', args)
-  // if (options.link === 'or') {
-  //   return args.includes(true)
-  // }
-  // return args.every((e) => e === true)
 }
 
 export function useGuard(): Guard {
@@ -86,8 +79,8 @@ export function link(node: HTMLElement): {
 
 interface Route {
   path: string
-  component: SvelteComponent | undefined
   layout: SvelteComponent | undefined
+  loader: () => Promise<SvelteComponent>
 }
 
 interface Router {
@@ -95,10 +88,11 @@ interface Router {
   mode: string
   root: string
   props: Record<string, unknown>
+  component: SvelteComponent | undefined
+  layout: SvelteComponent | undefined
   getFragment: () => string
   matchRoute: (path: string) => Route | undefined
-  getComponent: () => SvelteComponent | undefined
-  getComponentLayout: () => SvelteComponent | undefined
+  updateSelf: () => void
   getProps: () => Record<string, unknown>
   navigate: (path: string) => void
 }
@@ -115,11 +109,13 @@ type Evergreen =
 
 type ComponentProps = Record<string, Evergreen>
 
-export const useRouter: Writable<Router> = writable({
+export const useRouter: Writable<Router> = writable(<Router>{
   routes: [],
   mode: 'history',
   root: '/',
   props: <ComponentProps>{},
+  component: undefined,
+  layout: undefined,
   matchRoute: function (path: string) {
     const routes = this.routes
     let match
@@ -155,33 +151,23 @@ export const useRouter: Writable<Router> = writable({
   getFragment: () => {
     return decodeURI(window.location.pathname + window.location.search)
   },
-  getComponentLayout: function () {
+  updateSelf: async function () {
     if (this.routes) {
-      console.log('trying to match:', this.getFragment())
-      const svelteComponent = this.matchRoute(this.getFragment())
-
+      const currentPath = this.getFragment()
+      console.log(`check if route for path ${currentPath} is defined`)
+      const svelteComponent = this.matchRoute(currentPath)
       if (!svelteComponent) {
-        console.log("page not found")
-        this.navigate(`${this.getFragment().split("/")[1]}/notfound`)
+        console.log(`route for path ${currentPath} is not defined`)
+        // this.navigate(`${this.getFragment().split('/')[1]}/notfound`)
         return
-      }  else {
-        return svelteComponent.layout
-      }
-    } else {
-      throw new Error('routes are not registered correctly')
-    }
-  },
-  getComponent: function () {
-    if (this.routes) {
-      console.log('try to find above route')
-      const svelteComponent = this.matchRoute(this.getFragment())
-
-      if (!svelteComponent) {
-        console.log("page not found")
-        this.navigate(`${this.getFragment().split("/")[1]}/notfound`)
-        return
-      }  else {
-        return svelteComponent.component
+      } else {
+        console.log(`path requested layout ${svelteComponent.layout}`)
+        const component = await svelteComponent.loader()
+        useRouter.update((storeData) => {
+          storeData.component = component
+          storeData.layout = svelteComponent.layout
+          return storeData
+        })
       }
     } else {
       throw new Error('routes are not registered correctly')
@@ -200,6 +186,7 @@ export const useRouter: Writable<Router> = writable({
           this.root + path.replace(/\/$/, '').replace(/^\//, '')
         )
       }
+      storeData.updateSelf()
       return storeData
     })
   },

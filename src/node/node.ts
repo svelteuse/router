@@ -6,22 +6,33 @@ import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 interface Options {
   rootDir: string
   pageDir: string
+  layoutDir: string
   rootPath: string
+  entryFile: string
 }
 
 export function createRoutes(options: Options): PreprocessorGroup {
-  const { rootDir, pageDir, rootPath } = options
+  const { rootDir, pageDir, layoutDir, rootPath, entryFile } = options
   return {
     script: ({ content, attributes, filename }) => {
-      if (filename && filename.endsWith('App.svelte')) {
+      if (filename && filename.endsWith(entryFile)) {
         const routes: Map<string, unknown> = new Map()
-        const files = walkSync(resolve(join(rootDir, pageDir)))
+        const pageFiles = walkSync(resolve(join(rootDir, pageDir)))
+        const layoutFiles = walkSync(resolve(join(rootDir, layoutDir)))
         let importScriptBlock = ''
-        for (const file of files) {
+        for (const file of layoutFiles) {
           const parsedPath = relative(resolve(rootDir), file)
-          const { identifier, path } = parseFile(parsedPath, pageDir, rootPath)
+          const { identifier } = parseFile(parsedPath, layoutDir, rootPath)
           const importPath = generateImportPath(parsedPath)
           importScriptBlock += `\nimport ${identifier} from ${importPath};`
+        }
+        for (const file of pageFiles) {
+          const parsedPath = relative(resolve(rootDir), file)
+          const { identifier, path, isAsync } = parseFile(parsedPath, pageDir, rootPath)
+          const importPath = generateImportPath(parsedPath)
+          importScriptBlock += isAsync
+            ? `\nlet ${identifier} = null;`
+            : `\nimport ${identifier} from ${importPath};`
 
           const layoutConfig =
             readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] || 'default'
@@ -29,19 +40,23 @@ export function createRoutes(options: Options): PreprocessorGroup {
 
           routes.set(identifier, {
             path: path,
-            component: identifier,
             layout: layoutName,
+            loader: isAsync
+              ? `async () => {  console.log('async import'); console.log(${identifier}); return (await import(${importPath.replaceAll(
+                  '"',
+                  "'"
+                )})).default; }`
+              : `async () => { return Promise.resolve(${identifier}) }`,
           })
         }
-
         const routesDefinition = `
       $useRouter.routes = ${JSON.stringify([...routes.values()])
-        .replace(/(?<=component":)"(\w+)"/g, '$1')
-        .replace(/(?<=layout":)"(\w+)"/g, '$1')};
+        .replace(/(?<=layout":)"(\w+)"/g, '$1')
+        .replace(/(?<=loader":)"(.+?)"/g, '$1')};
       `
 
         let processedContent = content
-        if (attributes['svelteuse:imports'] === true) {
+        if (attributes['su-router-imports'] === true) {
           processedContent = importScriptBlock + '\n' + routesDefinition + '\n\n' + content
         }
         return {
@@ -61,16 +76,19 @@ export function parseFile(
   path: string,
   pageDir = 'pages',
   rootPath = '/'
-): { identifier: string; path: string } {
+): { identifier: string; path: string; isAsync: boolean } {
   let ivalue = ''
   let pvalue = ''
 
   if (rootPath && rootPath !== '/') {
     pvalue += rootPath
   }
+  const extension = path.endsWith('.svelte') ? '.svelte' : '.svx'
 
   const segments = path.split(sep)
-  const file = basename(segments.pop() || '', '.svelte')
+  let file = basename(segments.pop() || '', extension)
+  const isAsync = file.startsWith('~') ? true : false
+  file = file.replace('~', '')
   for (const dir of segments) {
     if (dir != pageDir) {
       isDynamic(dir)
@@ -89,6 +107,7 @@ export function parseFile(
   return {
     identifier: ivalue,
     path: pvalue,
+    isAsync,
   }
 }
 
