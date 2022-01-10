@@ -7,25 +7,46 @@ interface Options {
   rootDir: string
   pageDir: string
   layoutDir: string
+  errorsDir: string
   rootPath: string
   entryFile: string
 }
 
 export function createRoutes(options: Options): PreprocessorGroup {
-  const { rootDir, pageDir, layoutDir, rootPath, entryFile } = options
+  const { rootDir, pageDir, layoutDir, rootPath, entryFile, errorsDir } = options
   return {
     script: ({ content, attributes, filename }) => {
       if (filename && filename.endsWith(entryFile)) {
         const routes: Map<string, unknown> = new Map()
         const pageFiles = walkSync(resolve(join(rootDir, pageDir)))
         const layoutFiles = walkSync(resolve(join(rootDir, layoutDir)))
+        const errorFiles = walkSync(resolve(join(rootDir, errorsDir)))
         let importScriptBlock = ''
+
+        for (const file of errorFiles) {
+          const parsedPath = relative(resolve(rootDir), file)
+          const { identifier, path } = parseFile(parsedPath, layoutDir, rootPath)
+          const importPath = generateImportPath(parsedPath)
+          importScriptBlock += `\nimport ${identifier} from ${importPath};`
+
+          const layoutConfig =
+            readFileSync(file, 'utf8').match(/router-layout-(\w+)/i)?.[1] || 'default'
+          const layoutName = layoutConfig?.charAt(0).toUpperCase() + layoutConfig?.slice(1)
+
+          routes.set(identifier, {
+            path: path,
+            layout: layoutName,
+            loader: `async () => { return Promise.resolve(${identifier}) }`,
+          })
+        }
+
         for (const file of layoutFiles) {
           const parsedPath = relative(resolve(rootDir), file)
           const { identifier } = parseFile(parsedPath, layoutDir, rootPath)
           const importPath = generateImportPath(parsedPath)
           importScriptBlock += `\nimport ${identifier} from ${importPath};`
         }
+
         for (const file of pageFiles) {
           const parsedPath = relative(resolve(rootDir), file)
           const { identifier, path, isAsync } = parseFile(parsedPath, pageDir, rootPath)
@@ -49,6 +70,7 @@ export function createRoutes(options: Options): PreprocessorGroup {
               : `async () => { return Promise.resolve(${identifier}) }`,
           })
         }
+
         const routesDefinition = `
       $useRouter.routes = ${JSON.stringify([...routes.values()])
         .replace(/(?<=layout":)"(\w+)"/g, '$1')

@@ -157,8 +157,9 @@ export const useRouter: Writable<Router> = writable(<Router>{
       console.log(`check if route for path ${currentPath} is defined`)
       const svelteComponent = this.matchRoute(currentPath)
       if (!svelteComponent) {
-        console.log(`route for path ${currentPath} is not defined`)
-        // this.navigate(`${this.getFragment().split('/')[1]}/notfound`)
+        const errorCode = 404
+        console.log(`route for path ${currentPath} is not found`)
+        this.navigate(`${this.getFragment().split('/')[1]}/errors/${errorCode}`)
         return
       } else {
         console.log(`path requested layout ${svelteComponent.layout}`)
