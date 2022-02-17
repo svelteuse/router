@@ -74,10 +74,12 @@ export function createRoutes(options: Options): PreprocessorGroup {
         const routesDefinition = `
       $useRouter.routes = ${JSON.stringify(
         [...routes.values()].sort((a: any, b: any) => {
-          if (b['path'].length > a['path'].length) {
+          const splittedB = b['path'].split('/')
+          const splittedA = a['path'].split('/')
+          if (splittedB.slice(0, -1).join('/') > splittedA.slice(0, -1).join('/')) {
             return -1
-          } else if (b['path'].length == a['path'].length) {
-            return b['path'] < a['path'] ? -1 : 1
+          } else if (splittedB.slice(0, -1).join('/') == splittedA.slice(0, -1).join('/')) {
+            return splittedB[splittedB.length - 1] < splittedA[splittedA.length - 1] ? -1 : 1
           } else {
             return 1
           }
