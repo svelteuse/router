@@ -72,7 +72,17 @@ export function createRoutes(options: Options): PreprocessorGroup {
         }
 
         const routesDefinition = `
-      $useRouter.routes = ${JSON.stringify([...routes.values()])
+      $useRouter.routes = ${JSON.stringify(
+        [...routes.values()].sort((a: any, b: any) => {
+          if (b['path'].length > a['path'].length) {
+            return -1
+          } else if (b['path'].length == a['path'].length) {
+            return b['path'] < a['path'] ? -1 : 1
+          } else {
+            return 1
+          }
+        })
+      )
         .replace(/(?<=layout":)"(\w+)"/g, '$1')
         .replace(/(?<=loader":)"(.+?)"/g, '$1')};
       `
