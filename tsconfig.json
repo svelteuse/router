@@ -40,22 +40,6 @@
     "listEmittedFiles": true,
     // experimentalDecorators: true
     // "emitDecoratorMetadata": true
-    // "target": "ES2020",
-    // "moduleResolution": "node",
-    // "lib": [
-    //   "ES2020",
-    //   "DOM",
-    //   "ES2021.String"
-    // ],
-    // "esModuleInterop": true,
-    // "allowSyntheticDefaultImports": true,
-    // "isolatedModules": true,
-    // "forceConsistentCasingInFileNames": true,
-    // "noImplicitAny": true,
-    // "noImplicitReturns": true,
-    // "strict": true,
-    // "strictNullChecks": true,
-    // "noUnusedLocals": true,
     // "stripInternal": true
   }
 }

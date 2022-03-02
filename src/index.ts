@@ -162,10 +162,10 @@ export const useRouter: Writable<Router> = writable(<Router>{
   getProps: function () {
     return this.props
   },
-  navigate: function (path: string, track = false) {
+  navigate: function (path: string, track = true) {
     useRouter.update((storeData) => {
       switch (true) {
-        case storeData.mode === 'history' && track:
+        case storeData.mode === 'history' && track === true:
           window.history.pushState(
             undefined,
             '',
@@ -173,7 +173,7 @@ export const useRouter: Writable<Router> = writable(<Router>{
           )
           break
 
-        case storeData.mode === 'history' && !track:
+        case storeData.mode === 'history' && track === false:
           window.history.replaceState(
             undefined,
             '',
