@@ -1,19 +1,61 @@
 {
+  "include": [
+    "src/**/*"
+  ],
   "compilerOptions": {
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "lib": ["ES2020", "DOM", "ES2021.String"],
-    "importsNotUsedAsValues": "error",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
-    // strict settings
-    "forceConsistentCasingInFileNames": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "exactOptionalPropertyTypes": true,
+    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
+    "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "strict": true,
-    "strictNullChecks": true,
+    "noImplicitThis": true,
+    // noPropertyAccessFromIndexSignature
+    // noUncheckedIndexedAccess
     "noUnusedLocals": true,
-    "stripInternal": true
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "useUnknownInCatchVariables": true,
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "types": [
+      "node"
+    ],
+    "declaration": true,
+    "declarationDir": "./types",
+    "declarationMap": true,
+    "downlevelIteration": true,
+    "newLine": "lf",
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "removeComments": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "target": "ESNext",
+    "listEmittedFiles": true,
+    // experimentalDecorators: true
+    // "emitDecoratorMetadata": true
+    // "target": "ES2020",
+    // "moduleResolution": "node",
+    // "lib": [
+    //   "ES2020",
+    //   "DOM",
+    //   "ES2021.String"
+    // ],
+    // "esModuleInterop": true,
+    // "allowSyntheticDefaultImports": true,
+    // "isolatedModules": true,
+    // "forceConsistentCasingInFileNames": true,
+    // "noImplicitAny": true,
+    // "noImplicitReturns": true,
+    // "strict": true,
+    // "strictNullChecks": true,
+    // "noUnusedLocals": true,
+    // "stripInternal": true
   }
 }

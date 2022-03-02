@@ -1,43 +1,33 @@
 import { parse } from 'regexparam'
 import { writable } from 'svelte/store'
-import type { SvelteComponent } from 'svelte/types/runtime'
-import type { Writable } from 'svelte/types/runtime/store'
+import { type SvelteComponent } from 'svelte/types/runtime'
+import { type Writable } from 'svelte/types/runtime/store'
 
 export function exists<T>(x: T): boolean {
   return x === undefined || x === null ? false : true
 }
 
-// const guardCheck = useGuard({ link: 'or', redirect: '/login' }, exists(ACCOUNTS[0]))
-// if (!guardCheck) {
-//   $useRouter.navigate('/login')
-//   console.log($useRouter.getFragment())
-//   console.log($useRouter.getComponent())
-// }
-
-// options: GuardOptions, ...args: any[]
-// interface GuardOptions {}
-
 class Guard {
-  _destination = '/'
-  _logic: 'and' | 'or' = 'and'
+  #destination: string
+  #logic: 'and' | 'or'
 
-  constructor(logic?: 'and' | 'or') {
-    console.log('GUARD CLASS')
-    if (logic) this._logic = logic
+  constructor(logic: 'and' | 'or' = 'and', destination = '/') {
+    this.#logic = logic
+    this.#destination = destination
   }
 
   /**
    * goTo
    */
   public goTo(href: string): this {
-    this._destination = href
+    this.#destination = href
     console.log('guard would send me to', href)
     return this
   }
 
   private _navigate() {
     useRouter.update((storeData) => {
-      storeData.navigate(this._destination)
+      storeData.navigate(this.#destination)
       return storeData
     })
   }
@@ -47,7 +37,7 @@ class Guard {
    */
   public check(...args: boolean[]): this {
     console.log('argsArray', args)
-    if (this._logic === 'and' && args.some((check) => check == false)) {
+    if (this.#logic === 'and' && args.some((check) => check == false)) {
       this._navigate()
     }
     return this
