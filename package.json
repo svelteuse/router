@@ -1,7 +1,7 @@
 {
   "name": "@svelteuse/router",
   "description": "Useful svelte router helper",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "author": {
     "name": "Alexander Niebuhr",
     "email": "tech@nbhr.io"
