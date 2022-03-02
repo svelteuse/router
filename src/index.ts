@@ -21,7 +21,7 @@ class Guard {
    */
   public goTo(href: string): this {
     this.#destination = href
-    console.log('guard would send me to', href)
+    // console.log('guard would send me to', href)
     return this
   }
 
@@ -36,7 +36,7 @@ class Guard {
    * check
    */
   public check(...args: boolean[]): this {
-    console.log('argsArray', args)
+    // console.log('argsArray', args)
     if (this.#logic === 'and' && args.some((check) => check == false)) {
       this._navigate()
     }
@@ -115,8 +115,6 @@ export const useRouter: Writable<Router> = writable(<Router>{
       const router = parse(route.path)
       const isRoute = router.pattern.test(pathname)
 
-      console.log('query to add as props', search)
-
       if (isRoute) match = route
       if (router.keys.length > 0) {
         const matches = router.pattern.exec(pathname)
@@ -144,15 +142,12 @@ export const useRouter: Writable<Router> = writable(<Router>{
   updateSelf: async function () {
     if (this.routes) {
       const currentPath = this.getFragment()
-      console.log(`check if route for path ${currentPath} is defined`)
       const svelteComponent = this.matchRoute(currentPath)
       if (!svelteComponent) {
         const errorCode = 404
-        console.log(`route for path ${currentPath} is not found`)
         this.navigate(`${this.getFragment().split('/')[1]}/errors/${errorCode}`)
         return
       } else {
-        console.log(`path requested layout ${svelteComponent.layout}`)
         const component = await svelteComponent.loader()
         useRouter.update((storeData) => {
           storeData.component = component
@@ -167,16 +162,28 @@ export const useRouter: Writable<Router> = writable(<Router>{
   getProps: function () {
     return this.props
   },
-  navigate: function (path: string) {
+  navigate: function (path: string, track = false) {
     useRouter.update((storeData) => {
-      console.log('navigate to: ' + path)
-      if (storeData.mode === 'history') {
-        window.history.pushState(
-          undefined,
-          '',
-          this.root + path.replace(/\/$/, '').replace(/^\//, '')
-        )
+      switch (true) {
+        case storeData.mode === 'history' && track:
+          window.history.pushState(
+            undefined,
+            '',
+            this.root + path.replace(/\/$/, '').replace(/^\//, '')
+          )
+          break
+
+        case storeData.mode === 'history' && !track:
+          window.history.replaceState(
+            undefined,
+            '',
+            this.root + path.replace(/\/$/, '').replace(/^\//, '')
+          )
+          break
+        default:
+          break
       }
+
       storeData.updateSelf()
       return storeData
     })
