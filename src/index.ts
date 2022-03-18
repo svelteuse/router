@@ -47,11 +47,11 @@ class Guard {
 export function useGuard(): Guard {
   return new Guard()
 }
-
 export function link(node: HTMLElement): {
   destroy?: () => void
 } {
   node.addEventListener('click', function (event) {
+    if (event.metaKey || event.altKey || event.ctrlKey || event.shiftKey) return
     event.preventDefault()
     const href = node.getAttribute('href')
 
