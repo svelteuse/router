@@ -4,12 +4,7 @@ import { basename, join, relative, resolve, sep } from 'node:path'
 import type { PreprocessorGroup } from 'svelte/types/compiler/preprocess/types'
 
 interface Options {
-	rootDir: string;
-	pageDir: string;
-	layoutDir: string;
-	errorsDir: string;
-	rootPath: string;
-	entryFile: string;
+	route_segment: string;
 }
 
 export function createRoutes(options: Options): PreprocessorGroup {
