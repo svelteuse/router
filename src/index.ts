@@ -17,8 +17,8 @@ class Guard {
 	}
 
 	/**
-   * goTo
-   */
+	 * goTo
+	 */
 	public goTo(href: string): this {
 		this.#destination = href
 		// console.log('guard would send me to', href)
@@ -33,8 +33,8 @@ class Guard {
 	}
 
 	/**
-   * check
-   */
+	 * check
+	 */
 	public check(...args: boolean[]): this {
 		// console.log('argsArray', args)
 		if (this.#logic === 'and' && args.some((check) => !check)) {
@@ -88,22 +88,22 @@ interface Router {
 }
 
 type Evergreen =
-  | string
-  | number
-  | boolean
-  | bigint
-  | Record<string, unknown>
-  | unknown[]
-  | null
-  | undefined
+	| string
+	| number
+	| boolean
+	| bigint
+	| Record<string, unknown>
+	| unknown[]
+	| null
+	| undefined
 
 type ComponentProps = Record<string, Evergreen>
 
-export const useRouter: Writable<Router> = writable(<Router>{
+export const useRouter: Writable<Router> = writable({
 	routes: [],
 	mode: 'history',
 	root: '/',
-	props: <ComponentProps>{},
+	props: {} as ComponentProps,
 	component: undefined,
 	layout: undefined,
 	matchRoute: function (path: string) {
@@ -188,4 +188,4 @@ export const useRouter: Writable<Router> = writable(<Router>{
 			return storeData
 		})
 	},
-})
+} as Router)
